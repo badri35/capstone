@@ -1,0 +1,146 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-datasources
+  namespace: monitoring
+data:
+  datasources.yaml: |
+    apiVersion: 1
+    datasources:
+      - name: Prometheus
+        uid: prometheus
+        type: prometheus
+        access: proxy
+        url: http://prometheus.monitoring.svc:9090
+        isDefault: true
+      - name: Loki
+        uid: loki
+        type: loki
+        access: proxy
+        url: http://loki.monitoring.svc:3100
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-provider
+  namespace: monitoring
+data:
+  provider.yaml: |
+    apiVersion: 1
+    providers:
+      - name: finsecure
+        folder: FinSecure
+        type: file
+        options:
+          path: /var/lib/grafana/dashboards
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboards
+  namespace: monitoring
+data:
+  finsecure.json: |
+    {
+      "uid": "finsecure-pay",
+      "title": "FinSecure Pay - Service Health",
+      "schemaVersion": 39,
+      "version": 1,
+      "refresh": "10s",
+      "time": {"from": "now-15m", "to": "now"},
+      "panels": [
+        {"id": 1, "type": "stat", "title": "Pods up", "gridPos": {"x": 0, "y": 0, "w": 4, "h": 5},
+         "datasource": {"type": "prometheus", "uid": "prometheus"},
+         "targets": [{"expr": "sum(up{job=\"finsecure-pay\"})", "refId": "A"}]},
+        {"id": 2, "type": "timeseries", "title": "Transactions/sec by result", "gridPos": {"x": 4, "y": 0, "w": 10, "h": 5},
+         "datasource": {"type": "prometheus", "uid": "prometheus"},
+         "targets": [{"expr": "sum by (result) (rate(finsecure_transactions_total[1m]))", "legendFormat": "{{result}}", "refId": "A"}]},
+        {"id": 3, "type": "timeseries", "title": "Rejection ratio (alert > 0.5)", "gridPos": {"x": 14, "y": 0, "w": 10, "h": 5},
+         "datasource": {"type": "prometheus", "uid": "prometheus"},
+         "fieldConfig": {"defaults": {"unit": "percentunit", "min": 0, "max": 1}},
+         "targets": [{"expr": "sum(rate(finsecure_transactions_total{result=\"rejected\"}[1m])) / sum(rate(finsecure_transactions_total[1m]))", "legendFormat": "rejected", "refId": "A"}]},
+        {"id": 4, "type": "timeseries", "title": "Request latency p95 (/validate)", "gridPos": {"x": 0, "y": 5, "w": 12, "h": 7},
+         "datasource": {"type": "prometheus", "uid": "prometheus"},
+         "fieldConfig": {"defaults": {"unit": "s"}},
+         "targets": [{"expr": "histogram_quantile(0.95, sum by (le) (rate(http_server_requests_seconds_bucket{uri=\"/validate\"}[1m])))", "legendFormat": "p95", "refId": "A"}]},
+        {"id": 5, "type": "timeseries", "title": "HTTP requests/sec by status", "gridPos": {"x": 12, "y": 5, "w": 12, "h": 7},
+         "datasource": {"type": "prometheus", "uid": "prometheus"},
+         "targets": [{"expr": "sum by (status) (rate(http_server_requests_seconds_count{uri=\"/validate\"}[1m]))", "legendFormat": "{{status}}", "refId": "A"}]},
+        {"id": 6, "type": "timeseries", "title": "Pod CPU (cores)", "gridPos": {"x": 0, "y": 12, "w": 8, "h": 7},
+         "datasource": {"type": "prometheus", "uid": "prometheus"},
+         "targets": [{"expr": "sum by (pod) (rate(container_cpu_usage_seconds_total{namespace=\"finsecure\",container=\"finsecure-pay\"}[1m]))", "legendFormat": "{{pod}}", "refId": "A"}]},
+        {"id": 7, "type": "timeseries", "title": "Pod memory (working set)", "gridPos": {"x": 8, "y": 12, "w": 8, "h": 7},
+         "datasource": {"type": "prometheus", "uid": "prometheus"},
+         "fieldConfig": {"defaults": {"unit": "bytes"}},
+         "targets": [{"expr": "sum by (pod) (container_memory_working_set_bytes{namespace=\"finsecure\",container=\"finsecure-pay\"})", "legendFormat": "{{pod}}", "refId": "A"}]},
+        {"id": 8, "type": "timeseries", "title": "JVM heap used", "gridPos": {"x": 16, "y": 12, "w": 8, "h": 7},
+         "datasource": {"type": "prometheus", "uid": "prometheus"},
+         "fieldConfig": {"defaults": {"unit": "bytes"}},
+         "targets": [{"expr": "sum by (pod) (jvm_memory_used_bytes{area=\"heap\",job=\"finsecure-pay\"})", "legendFormat": "{{pod}}", "refId": "A"}]},
+        {"id": 9, "type": "logs", "title": "Application logs (Loki)", "gridPos": {"x": 0, "y": 19, "w": 24, "h": 9},
+         "datasource": {"type": "loki", "uid": "loki"},
+         "targets": [{"expr": "{namespace=\"finsecure\", app=\"finsecure-pay\"}", "refId": "A"}]}
+      ]
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+  namespace: monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
+  template:
+    metadata:
+      labels:
+        app: grafana
+    spec:
+      containers:
+        - name: grafana
+          image: grafana/grafana:11.4.0
+          env:
+            - name: GF_SECURITY_ADMIN_USER
+              valueFrom:
+                secretKeyRef: {name: grafana-admin, key: user}
+            - name: GF_SECURITY_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef: {name: grafana-admin, key: password}
+            - name: GF_USERS_ALLOW_SIGN_UP
+              value: "false"
+          ports:
+            - containerPort: 3000
+          readinessProbe:
+            httpGet: {path: /api/health, port: 3000}
+          resources:
+            requests: {cpu: 50m, memory: 128Mi}
+            limits: {memory: 400Mi}
+          volumeMounts:
+            - name: datasources
+              mountPath: /etc/grafana/provisioning/datasources
+            - name: provider
+              mountPath: /etc/grafana/provisioning/dashboards
+            - name: dashboards
+              mountPath: /var/lib/grafana/dashboards
+      volumes:
+        - name: datasources
+          configMap: {name: grafana-datasources}
+        - name: provider
+          configMap: {name: grafana-dashboard-provider}
+        - name: dashboards
+          configMap: {name: grafana-dashboards}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+  namespace: monitoring
+spec:
+  type: LoadBalancer
+  selector:
+    app: grafana
+  ports:
+    - port: 3000
+      targetPort: 3000
