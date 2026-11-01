@@ -1,0 +1,11 @@
+target/
+*.class
+*.log
+.idea/
+.vscode/
+*.iml
+.DS_Store
+.env
+*.pem
+*.key
+evidence/tmp/
