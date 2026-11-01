@@ -1,2 +1,2 @@
-Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.832 s -- in com.finsecure.pay.controller.ValidationControllerTest
-Tests run: 14, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.051 s -- in com.finsecure.pay.service.TransactionValidatorTest
+Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.804 s -- in com.finsecure.pay.controller.ValidationControllerTest
+Tests run: 14, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.067 s -- in com.finsecure.pay.service.TransactionValidatorTest

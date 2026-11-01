@@ -121,24 +121,21 @@ data:
     clients:
       - url: http://loki.monitoring.svc:3100/loki/api/v1/push
     scrape_configs:
-      - job_name: pods
-        kubernetes_sd_configs:
-          - role: pod
+      # Static file discovery: the node's pod log directory (CRI format). Pod name is parsed from the path.
+      - job_name: finsecure-pods
+        static_configs:
+          - targets: [localhost]
+            labels:
+              namespace: finsecure
+              app: finsecure-pay
+              __path__: /var/log/pods/finsecure_finsecure-pay-*/finsecure-pay/*.log
         pipeline_stages:
           - cri: {}
-        relabel_configs:
-          - source_labels: [__meta_kubernetes_pod_node_name]
-            target_label: __host__
-          - source_labels: [__meta_kubernetes_namespace]
-            target_label: namespace
-          - source_labels: [__meta_kubernetes_pod_name]
-            target_label: pod
-          - source_labels: [__meta_kubernetes_pod_label_app]
-            target_label: app
-          - source_labels: [__meta_kubernetes_pod_uid, __meta_kubernetes_pod_container_name]
-            separator: /
-            target_label: __path__
-            replacement: /var/log/pods/*$1/*.log
+          - regex:
+              source: filename
+              expression: '/var/log/pods/finsecure_(?P<pod>[^_]+)_'
+          - labels:
+              pod:
 ---
 apiVersion: apps/v1
 kind: DaemonSet

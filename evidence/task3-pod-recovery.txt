@@ -1,0 +1,13 @@
+$ kubectl delete pod/finsecure-pay-7658cf45b8-cxwt6
+pod "finsecure-pay-7658cf45b8-cxwt6" deleted from finsecure namespace
+NAME                             READY   STATUS        RESTARTS   AGE
+finsecure-pay-7658cf45b8-6vx7w   0/1     Pending       0          0s
+finsecure-pay-7658cf45b8-cxwt6   1/1     Terminating   0          63s
+finsecure-pay-7658cf45b8-fknrf   1/1     Running       0          52s
+finsecure-pay-7658cf45b8-6vx7w   0/1     ContainerCreating   0          0s
+finsecure-pay-7658cf45b8-cxwt6   0/1     Error               0          63s
+finsecure-pay-7658cf45b8-6vx7w   0/1     ContainerCreating   0          0s
+finsecure-pay-7658cf45b8-6vx7w   0/1     Running             0          0s
+NAME                             READY   STATUS    RESTARTS   AGE
+finsecure-pay-7658cf45b8-6vx7w   0/1     Running   0          1s
+finsecure-pay-7658cf45b8-fknrf   1/1     Running   0          53s

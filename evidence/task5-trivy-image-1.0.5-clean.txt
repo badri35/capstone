@@ -1,0 +1,25 @@
+2026-11-01T22:32:03+08:00	INFO	[vuln] Vulnerability scanning is enabled
+2026-11-01T22:32:03+08:00	INFO	[secret] Secret scanning is enabled
+2026-11-01T22:32:03+08:00	INFO	[secret] If your scanning is slow, please try '--scanners vuln' to disable secret scanning
+2026-11-01T22:32:03+08:00	INFO	[secret] Please see https://trivy.dev/docs/dev/guide/scanner/secret#recommendation for faster secret detection
+2026-11-01T22:32:05+08:00	INFO	Detected OS	family="ubuntu" version="26.04"
+2026-11-01T22:32:05+08:00	INFO	[ubuntu] Detecting vulnerabilities...	os_version="26.04" pkg_num=140
+2026-11-01T22:32:05+08:00	INFO	Number of language-specific files	num=2
+2026-11-01T22:32:05+08:00	INFO	[gobinary] Detecting vulnerabilities...
+2026-11-01T22:32:05+08:00	INFO	[jar] Detecting vulnerabilities...
+
+Report Summary
+
+┌──────────────────────────────────────────────────────┬──────────┬─────────────────┬─────────┐
+│                        Target                        │   Type   │ Vulnerabilities │ Secrets │
+├──────────────────────────────────────────────────────┼──────────┼─────────────────┼─────────┤
+│ docker.io/badri35/finsecure-pay:1.0.5 (ubuntu 26.04) │  ubuntu  │        0        │    -    │
+├──────────────────────────────────────────────────────┼──────────┼─────────────────┼─────────┤
+│ app/app.jar                                          │   jar    │        0        │    -    │
+├──────────────────────────────────────────────────────┼──────────┼─────────────────┼─────────┤
+│ usr/bin/pebble                                       │ gobinary │        0        │    -    │
+└──────────────────────────────────────────────────────┴──────────┴─────────────────┴─────────┘
+Legend:
+- '-': Not scanned
+- '0': Clean (no security findings detected)
+

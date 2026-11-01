@@ -1,0 +1,26 @@
+## kubectl get deploy,pods,svc,cm
+NAME                            READY   UP-TO-DATE   AVAILABLE   AGE   CONTAINERS      IMAGES                                  SELECTOR
+deployment.apps/finsecure-pay   2/2     2            2           69m   finsecure-pay   docker.io/badri35/finsecure-pay:1.0.5   app=finsecure-pay
+
+NAME                                 READY   STATUS    RESTARTS   AGE   IP            NODE       NOMINATED NODE   READINESS GATES
+pod/finsecure-pay-7658cf45b8-cxwt6   1/1     Running   0          63s   10.244.0.15   minikube   <none>           <none>
+pod/finsecure-pay-7658cf45b8-fknrf   1/1     Running   0          52s   10.244.0.16   minikube   <none>           <none>
+
+NAME                    TYPE           CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE   SELECTOR
+service/finsecure-pay   LoadBalancer   10.107.113.17   <pending>     80:30779/TCP   69m   app=finsecure-pay
+
+NAME                             DATA   AGE
+configmap/finsecure-pay-config   2      69m
+configmap/kube-root-ca.crt       1      69m
+
+## probes
+{"failureThreshold":3,"httpGet":{"path":"/actuator/health/readiness","port":"http","scheme":"HTTP"},"initialDelaySeconds":10,"periodSeconds":5,"successThreshold":1,"timeoutSeconds":1}
+{"failureThreshold":3,"httpGet":{"path":"/actuator/health/liveness","port":"http","scheme":"HTTP"},"initialDelaySeconds":30,"periodSeconds":10,"successThreshold":1,"timeoutSeconds":1}
+
+## rollout history
+deployment.apps/finsecure-pay 
+REVISION  CHANGE-CAUSE
+1         <none>
+3         <none>
+4         <none>
+
