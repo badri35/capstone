@@ -10,7 +10,7 @@ pipeline {
     }
 
     environment {
-        IMAGE_REPO = 'docker.io/badri35/finsecure-pay'
+        IMAGE_REPO = 'docker.io/badri3590/finsecure-pay'
         VERSION    = "1.0.${BUILD_NUMBER}"
         K8S_NS     = 'finsecure'
         TRIVY_ARGS = '--severity HIGH,CRITICAL --ignore-unfixed --timeout 20m --no-progress'

@@ -30,7 +30,7 @@ spec:
         runAsUser: 999
       containers:
         - name: finsecure-pay
-          image: docker.io/badri35/finsecure-pay:1.0.0
+          image: docker.io/badri3590/finsecure-pay:1.0.0
           imagePullPolicy: IfNotPresent
           ports:
             - name: http

@@ -20,8 +20,8 @@ curl -X POST localhost:8080/validate -H 'Content-Type: application/json' \
 ```bash
 mvn clean verify                 # 19 JUnit 5 tests + JaCoCo
 mvn -Pquality clean verify       # adds SpotBugs gate
-docker build --build-arg APP_VERSION=1.0.0 -t docker.io/badri35/finsecure-pay:1.0.0 .
-docker run -p 8080:8080 docker.io/badri35/finsecure-pay:1.0.0
+docker build --build-arg APP_VERSION=1.0.0 -t docker.io/badri3590/finsecure-pay:1.0.0 .
+docker run -p 8080:8080 docker.io/badri3590/finsecure-pay:1.0.0
 ```
 
 ## Kubernetes
