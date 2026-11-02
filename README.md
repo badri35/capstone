@@ -33,6 +33,8 @@ kubectl -n finsecure delete pod <name>             # controller recreates it
 kubectl -n finsecure rollout undo deploy/finsecure-pay
 ```
 
+AWS EKS: `eksctl create cluster -f aws/eks-cluster.yaml`, then run the pipeline with `TARGET=cloud PUSH_IMAGE=true`. The image is published multi-arch (amd64 + arm64).
+
 `Service` is `LoadBalancer`: on EKS/AKS/GKE it receives a public address; locally use `kubectl port-forward svc/finsecure-pay 18080:80`.
 
 ## CI/CD (Jenkinsfile)
