@@ -1,1 +1,1 @@
-{"status":"success","data":{"alerts":[]}}
+{"status":"success","data":{"alerts":[{"labels":{"alertname":"FinSecureHighRejectionRate","severity":"warning"},"annotations":{"description":"Rejection ratio is 100% over the last minute. Check for a bad client release or fraud pattern.","summary":"More than 50% of transactions are being rejected"},"state":"firing","activeAt":"2026-11-02T12:57:15.973170509Z","value":"1e+00"}]}}

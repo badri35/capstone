@@ -100,8 +100,10 @@ pipeline {
                                 usernameVariable: 'REG_USER', passwordVariable: 'REG_PASS')]) {
                             sh '''
                                 echo "$REG_PASS" | docker login -u "$REG_USER" --password-stdin
-                                docker push $IMAGE_REPO:$VERSION
-                                docker push $IMAGE_REPO:latest
+                                # multi-arch (amd64 for EKS nodes, arm64 for Apple Silicon) published as one tag
+                                docker buildx inspect multi >/dev/null 2>&1 || docker buildx create --name multi --driver docker-container
+                                docker buildx build --builder multi --platform linux/amd64,linux/arm64 \
+                                    --build-arg APP_VERSION=$VERSION -t $IMAGE_REPO:$VERSION -t $IMAGE_REPO:latest --push .
                                 docker logout
                             '''
                         }
@@ -113,8 +115,10 @@ pipeline {
                         sh '''#!/bin/bash
                             set -e
                             if [ "$TARGET" = "minikube" ]; then minikube image load $IMAGE_REPO:$VERSION; fi
+                            if [ "$TARGET" = "cloud" ]; then export KUBECONFIG=$HOME/.kube/eks-config AWS_PROFILE=fsp AWS_REGION=us-east-1; fi
                             kubectl apply -f k8s/namespace.yaml -f k8s/configmap.yaml -f k8s/service.yaml -f k8s/pdb.yaml
-                            kubectl -n $K8S_NS get deploy finsecure-pay >/dev/null 2>&1 || kubectl apply -f k8s/deployment.yaml
+                            kubectl -n $K8S_NS get deploy finsecure-pay >/dev/null 2>&1 || \
+                                sed "s|image: .*|image: $IMAGE_REPO:$VERSION|" k8s/deployment.yaml | kubectl apply -f -
                             kubectl -n $K8S_NS set image deploy/finsecure-pay finsecure-pay=$IMAGE_REPO:$VERSION
                             if ! kubectl -n $K8S_NS rollout status deploy/finsecure-pay --timeout=180s; then
                                 echo "Rollout failed - rolling back"
