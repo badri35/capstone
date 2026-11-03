@@ -10,6 +10,8 @@ recovery design, and one proposed AI capability for operations.
 
 ## 2. End-to-end architecture
 
+Full-size diagram: [architecture-diagram.pdf](architecture-diagram.pdf) ([PNG](architecture-diagram.png)). Simplified view:
+
 ```mermaid
 flowchart LR
     Dev[Developer] -->|git push| GH[(GitHub repo)]
